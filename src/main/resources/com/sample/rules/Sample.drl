@@ -1,0 +1,56 @@
+package com.sample.rules;
+
+import com.sample.DroolsTest.Paciente;
+import com.sample.DroolsTest.Afeccion;
+import com.sample.DroolsTest.Turno;
+
+rule PriorizarTurnoEmergencia
+salience 9
+    when
+        // que el turno sea de emergencia
+        $turno: Turno(emergencia == true)
+    then
+        // Acción: Asignar prioridad alta al turno de emergencia
+        System.out.println("Prioridad entrante: " + $turno.getPrioridad());
+        modify($turno) {
+            setPrioridad(3);
+        }
+        System.out.println("nueva prioridad: "+ $turno.getPrioridad());
+end
+
+rule AsignacionPrioridadGravedad
+salience 10
+when
+    $turno: Turno()
+    $paciente: Paciente() from $turno.getPaciente()
+    $afeccion: Afeccion() from $paciente.getAfeccion()
+then
+    switch ($afeccion.getGravedad()) {
+        case "Leve":
+            modify($turno) {
+                setPrioridad(1);
+            }
+            System.out.println("Prioridad asignada: " + $turno.getPrioridad());
+            break;
+        case "Moderada":
+            modify($turno) {
+                setPrioridad(2);
+            }
+            System.out.println("Prioridad asignada: " +$turno.getPrioridad());
+            break;
+        case "Grave":
+            modify($turno) {
+                setPrioridad(3);
+            }
+            System.out.println("Prioridad asignada: " +$turno.getPrioridad());
+            break;
+        default:
+            modify($turno) {
+                setPrioridad(0);
+            }
+            System.out.println("Prioridad asignada: " +$turno.getPrioridad());
+            break;
+    }
+end
+
+
